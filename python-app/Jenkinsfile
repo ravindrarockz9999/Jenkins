@@ -1,9 +1,14 @@
 pipeline {
-    agent { label 'docker' }  // or 'any' if Docker is installed on Jenkins agent
+    agent {
+        docker {
+            image 'docker:24.0.5'   // official Docker-in-Docker image
+            args '-v /var/run/docker.sock:/var/run/docker.sock' 
+            // mount host Docker socket so container can run docker commands
+        }
+    }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') 
-        // Jenkins credential ID for DockerHub username/password
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
         IMAGE_NAME = "ravindra9999/github_actions"
         IMAGE_TAG  = "latest"
     }
@@ -51,7 +56,7 @@ pipeline {
             echo "❌ Build failed. Check logs."
         }
         always {
-            cleanWs() // cleanup workspace
+            cleanWs()
         }
     }
 }
