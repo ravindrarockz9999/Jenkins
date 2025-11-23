@@ -1,15 +1,8 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.9-slim'   // lightweight Python base image
-            args '-u root -v /var/run/docker.sock:/var/run/docker.sock' 
-            // mount Docker socket so we can run docker commands
-        }
-    }
+    agent { label 'docker' }   // run on the Jenkins node/agent that has Docker installed
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') 
-        IMAGE_NAME = "ravindra9999/github_actions"
+        IMAGE_NAME = "ravindra9999/python-app"
         IMAGE_TAG  = "latest"
     }
 
@@ -20,20 +13,14 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'pip install --upgrade pip --break-system-packages'
-            }
-        }
-
         stage('Docker Login') {
-         steps {
-            withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
-                                          usernameVariable: 'DOCKER_USER',
-                                          passwordVariable: 'DOCKER_PASS')]) {
-             sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                                                  usernameVariable: 'DOCKER_USER',
+                                                  passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                }
             }
-          }
         }
 
         stage('Build Docker Image') {
