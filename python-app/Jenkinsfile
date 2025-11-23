@@ -11,22 +11,55 @@ pipeline {
     }
     
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
         stage('Build & Push') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-                    sh '''
-                        echo $PASS | docker login -u $USER --password-stdin
-                        docker build -t ravindra9999/github_actions:latest .
-                        docker push ravindra9999/github_actions:latest
-                        docker logout
-                        echo "✅ Docker image pushed successfully!"
-                    '''
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'USER',
+                        passwordVariable: 'PASS'
+                    )]) {
+                        sh '''
+                            # Debug info
+                            echo "Current directory: $(pwd)"
+                            echo "Files in directory:"
+                            ls -la
+                            
+                            # Check if Dockerfile exists
+                            if [ ! -f Dockerfile ]; then
+                                echo "❌ ERROR: Dockerfile not found!"
+                                exit 1
+                            fi
+                            
+                            # Login to DockerHub
+                            echo $PASS | docker login -u $USER --password-stdin || exit 1
+                            
+                            # Build image
+                            docker build -t ravindra9999/github_actions:latest . || exit 1
+                            
+                            # Push image
+                            docker push ravindra9999/github_actions:latest || exit 1
+                            
+                            # Logout
+                            docker logout
+                            
+                            echo "✅ Docker image pushed successfully!"
+                        '''
+                    }
                 }
             }
+        }
+    }
+    
+    post {
+        always {
+            echo "Pipeline completed with status: ${currentBuild.currentResult}"
         }
     }
 }
