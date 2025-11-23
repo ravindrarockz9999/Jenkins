@@ -12,13 +12,11 @@ https://www.youtube.com/watch?v=zZfhAXfBvVA&list=RDCMUCnnQ3ybuyFdzvgv2Ky5jnAA&in
 
 Install Jenkins, configure Docker as agent, set up cicd, deploy applications to k8s and much more.
 
-## AWS EC2 Instance
+## GCP VM Instance
 
 - Go to GCP Console
 - VM Instance
 - Create instances
-
-<img width="994" alt="Screenshot 2023-02-01 at 12 37 45 PM" src="https://user-images.githubusercontent.com/43399466/215974891-196abfe9-ace0-407b-abd2-adcffe218e3f.png">
 
 ### Install Jenkins.
 
@@ -52,19 +50,12 @@ sudo apt-get update
 sudo apt-get install jenkins
 ```
 
-**Note: ** By default, Jenkins will not be accessible to the external world due to the inbound traffic restriction by AWS. Open port 8080 in the inbound traffic rules as show below.
-
-- EC2 > Instances > Click on <Instance-ID>
-- In the bottom tabs -> Click on Security
-- Security groups
-- Add inbound traffic rules as shown in the image (you can just allow TCP 8080 as well, in my case, I allowed `All traffic`).
-
-<img width="1187" alt="Screenshot 2023-02-01 at 12 42 01 PM" src="https://user-images.githubusercontent.com/43399466/215975712-2fc569cb-9d76-49b4-9345-d8b62187aa22.png">
+**Note: ** By default, Jenkins will not be accessible to the external world due to the inbound traffic restriction by GCP. open firewall rule with port 8080, if already exist then fine.
 
 
 ### Login to Jenkins using the below URL:
 
-http://<vm-instance-public-ip-address>:8080    [You can get the vm-instance-public-ip-address from your AWS EC2 console page]
+http://<vm-instance-public-ip-address>:8080    [You can get the vm-instance-public-ip-address from your GCP VM console page]
 
 Note: If you are not interested in allowing `All Traffic` to your vm instance
       1. Make sure firewall traffic rule ingress to only allow custom TCP port `8080`
