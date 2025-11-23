@@ -1,14 +1,14 @@
 pipeline {
     agent {
         docker {
-            image 'docker:24.0.5'   // official Docker-in-Docker image
+            image 'python:3.9-slim'   // lightweight Python base image
             args '-v /var/run/docker.sock:/var/run/docker.sock' 
-            // mount host Docker socket so container can run docker commands
+            // mount Docker socket so we can run docker commands
         }
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') 
         IMAGE_NAME = "ravindra9999/github_actions"
         IMAGE_TAG  = "latest"
     }
@@ -17,10 +17,29 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-         }
+            }
         }
 
-        stage('Login to DockerHub') {
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip install --upgrade pip'
+                sh 'pip install -r requirement.txt'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // assuming you use pytest or unittest
+                sh 'pytest || true'
+            }
+            post {
+                always {
+                    junit '**/test-results/*.xml' // if pytest is configured to output JUnit XML
+                }
+            }
+        }
+
+        stage('Docker Login') {
             steps {
                 sh """
                     echo "${DOCKERHUB_CREDENTIALS_PSW}" | \
@@ -41,7 +60,7 @@ pipeline {
             }
         }
 
-        stage('Logout from DockerHub') {
+        stage('Docker Logout') {
             steps {
                 sh "docker logout"
             }
@@ -58,5 +77,5 @@ pipeline {
         always {
             cleanWs()
         }
-    } 
+    }
 }
