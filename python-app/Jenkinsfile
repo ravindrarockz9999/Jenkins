@@ -1,32 +1,22 @@
 pipeline {
     agent any
-    
-    triggers {
-        githubPush()
-    }
-    
+    triggers { githubPush() }
     stages {
-        stage('Build & Push') {
+        stage('Docker Build & Push') {
             steps {
                 checkout scm
-                script {
-                    // If Dockerfile is in a subdirectory, change to that directory
-                    dir('subdirectory-name') {
-                        withCredentials([usernamePassword(
-                            credentialsId: 'dockerhub-creds',
-                            usernameVariable: 'USER',
-                            passwordVariable: 'PASS'
-                        )]) {
-                            sh '''
-                                echo "Building from subdirectory..."
-                                echo $PASS | docker login -u $USER --password-stdin
-                                docker build -t ravindra9999/github_actions:latest .
-                                docker push ravindra9999/github_actions:latest
-                                docker logout
-                                echo "✅ Success!"
-                            '''
-                        }
-                    }
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+                    sh '''
+                        echo $PASS | docker login -u $USER --password-stdin
+                        docker build -t ravindra9999/github_actions:latest .
+                        docker push ravindra9999/github_actions:latest
+                        docker logout
+                        echo "✅ Image pushed to DockerHub!"
+                    '''
                 }
             }
         }
