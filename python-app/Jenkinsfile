@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'docker' }   // run on the Jenkins node/agent that has Docker installed
+    agent any   // run on the Jenkins node/agent that has Docker installed
 
     environment {
         IMAGE_NAME = "ravindra9999/python-app"
