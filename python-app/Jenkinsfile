@@ -6,25 +6,28 @@ pipeline {
     }
     
     stages {
-        stage('Checkout') {
+        stage('Build & Push') {
             steps {
                 checkout scm
-            }
-        }
-        
-        stage('Test Docker Build') {
-            steps {
-                sh '''
-                    echo "Checking for Dockerfile..."
-                    if [ -f Dockerfile ]; then
-                        echo "Dockerfile found. Building..."
-                        docker build -t test-image .
-                        echo "✅ Build successful!"
-                    else
-                        echo "❌ ERROR: No Dockerfile found!"
-                        exit 1
-                    fi
-                '''
+                script {
+                    // If Dockerfile is in a subdirectory, change to that directory
+                    dir('subdirectory-name') {
+                        withCredentials([usernamePassword(
+                            credentialsId: 'dockerhub-creds',
+                            usernameVariable: 'USER',
+                            passwordVariable: 'PASS'
+                        )]) {
+                            sh '''
+                                echo "Building from subdirectory..."
+                                echo $PASS | docker login -u $USER --password-stdin
+                                docker build -t ravindra9999/github_actions:latest .
+                                docker push ravindra9999/github_actions:latest
+                                docker logout
+                                echo "✅ Success!"
+                            '''
+                        }
+                    }
+                }
             }
         }
     }
