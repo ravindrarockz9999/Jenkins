@@ -6,17 +6,24 @@ pipeline {
     }
     
     stages {
-        stage('Debug Environment') {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Test Docker Build') {
             steps {
                 sh '''
-                    echo "=== Basic System Check ==="
-                    echo "Current directory: $(pwd)"
-                    echo "Who am I: $(whoami)"
-                    echo "Listing files:"
-                    ls -la
-                    echo "Docker check:"
-                    docker --version
-                    echo "=== End Debug ==="
+                    echo "Checking for Dockerfile..."
+                    if [ -f Dockerfile ]; then
+                        echo "Dockerfile found. Building..."
+                        docker build -t test-image .
+                        echo "✅ Build successful!"
+                    else
+                        echo "❌ ERROR: No Dockerfile found!"
+                        exit 1
+                    fi
                 '''
             }
         }
