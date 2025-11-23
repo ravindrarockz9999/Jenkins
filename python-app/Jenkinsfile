@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'python:3.9-slim'   // lightweight Python base image
-            args '-v /var/run/docker.sock:/var/run/docker.sock' 
+            args '-u root -v /var/run/docker.sock:/var/run/docker.sock' 
             // mount Docker socket so we can run docker commands
         }
     }
@@ -22,8 +22,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip install --upgrade pip'
-                sh 'pip install -r requirement.txt'
+                sh 'pip install --upgrade pip --break-system-packages'
             }
         }
 
