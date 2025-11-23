@@ -1,24 +1,57 @@
 pipeline {
-    agent any
-    triggers { githubPush() }
+    agent { label 'docker' }  // or 'any' if Docker is installed on Jenkins agent
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') 
+        // Jenkins credential ID for DockerHub username/password
+        IMAGE_NAME = "ravindra9999/github_actions"
+        IMAGE_TAG  = "latest"
+    }
+
     stages {
-        stage('Docker Build & Push') {
+        stage('Checkout') {
             steps {
                 checkout scm
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-                    sh '''
-                        echo $PASS | docker login -u $USER --password-stdin
-                        docker build -t ravindra9999/github_actions:latest .
-                        docker push ravindra9999/github_actions:latest
-                        docker logout
-                        echo "✅ Image pushed to DockerHub!"
-                    '''
-                }
             }
+        }
+
+        stage('Login to DockerHub') {
+            steps {
+                sh """
+                    echo "${DOCKERHUB_CREDENTIALS_PSW}" | \
+                    docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
+                """
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+            }
+        }
+
+        stage('Logout from DockerHub') {
+            steps {
+                sh "docker logout"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Docker image pushed successfully: ${IMAGE_NAME}:${IMAGE_TAG}"
+        }
+        failure {
+            echo "❌ Build failed. Check logs."
+        }
+        always {
+            cleanWs() // cleanup workspace
         }
     }
 }
