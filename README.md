@@ -2,7 +2,7 @@
 
 Are you looking forward to learn Jenkins right from Zero(installation) to Hero(Build end to end pipelines)? then you are at the right place. 
 
-## Installation on EC2 Instance
+## Installation on GCP VM Instance
 
 YouTube Video ->
 https://www.youtube.com/watch?v=zZfhAXfBvVA&list=RDCMUCnnQ3ybuyFdzvgv2Ky5jnAA&index=1
@@ -14,9 +14,9 @@ Install Jenkins, configure Docker as agent, set up cicd, deploy applications to 
 
 ## AWS EC2 Instance
 
-- Go to AWS Console
-- Instances(running)
-- Launch instances
+- Go to GCP Console
+- VM Instance
+- Create instances
 
 <img width="994" alt="Screenshot 2023-02-01 at 12 37 45 PM" src="https://user-images.githubusercontent.com/43399466/215974891-196abfe9-ace0-407b-abd2-adcffe218e3f.png">
 
@@ -64,14 +64,13 @@ sudo apt-get install jenkins
 
 ### Login to Jenkins using the below URL:
 
-http://<ec2-instance-public-ip-address>:8080    [You can get the ec2-instance-public-ip-address from your AWS EC2 console page]
+http://<vm-instance-public-ip-address>:8080    [You can get the vm-instance-public-ip-address from your AWS EC2 console page]
 
-Note: If you are not interested in allowing `All Traffic` to your EC2 instance
-      1. Delete the inbound traffic rule for your instance
-      2. Edit the inbound traffic rule to only allow custom TCP port `8080`
+Note: If you are not interested in allowing `All Traffic` to your vm instance
+      1. Make sure firewall traffic rule ingress to only allow custom TCP port `8080`
   
 After you login to Jenkins, 
-      - Run the command to copy the Jenkins Admin Password - `sudo cat /var/lib/jenkins/secrets/initialAdminPassword`
+      - Run the command with root user to copy the Jenkins Admin Password - `sudo cat /var/lib/jenkins/secrets/initialAdminPassword`
       - Enter the Administrator password
       
 <img width="1291" alt="Screenshot 2023-02-01 at 10 56 25 AM" src="https://user-images.githubusercontent.com/43399466/215959008-3ebca431-1f14-4d81-9f12-6bb232bfbee3.png">
