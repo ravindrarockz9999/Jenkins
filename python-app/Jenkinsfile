@@ -27,16 +27,16 @@ pipeline {
         }
 
         stage('Run Tests') {
-            steps {
-                // assuming you use pytest or unittest
-                sh 'pytest || true'
-            }
-            post {
-                always {
-                    junit '**/test-results/*.xml' // if pytest is configured to output JUnit XML
-                }
-            }
-        }
+          steps {
+            sh 'mkdir -p test-results'
+            sh 'pytest --junitxml=test-results/results.xml'
+           }
+         post {
+            always {
+            junit 'test-results/*.xml'
+                  }
+             }
+       }
 
         stage('Docker Login') {
             steps {
